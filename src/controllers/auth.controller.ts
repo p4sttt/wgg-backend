@@ -29,7 +29,7 @@ class Controller {
         });
       }
 
-      const isEqualPassword = compareSync(user.password, password);
+      const isEqualPassword = compareSync(password, user.password);
 
       if (!isEqualPassword) {
         return res.status(400).json({
