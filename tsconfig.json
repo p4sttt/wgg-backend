@@ -21,7 +21,9 @@
     "baseUrl": "./src",
     "paths": {
       "~/routes": ["routes/"],
-      "~/controllers": ["controllers/"]
+      "~/controllers": ["controllers/"],
+      "~/types": ["types/"],
+      "~/helpers": ["helpers/"]
     }
   },
   "ts-node": {
