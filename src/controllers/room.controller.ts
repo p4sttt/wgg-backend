@@ -1,21 +1,27 @@
 import { Request, Response } from 'express';
 import { tokenService, userService } from 'services';
+import { roomService } from 'services/room.service';
 
-import { RequestWithToken, RoomCreateData } from '~/types';
+import { RequestWithToken } from '~/types';
 
 class Controller {
   async createRoom(req: Request, res: Response) {
     try {
-      const { name, lifetime, maxUsersCount } = req.body as RoomCreateData;
+      const { name, lifetime, maxUsersCount } = req.body;
       const { authorization } = req.headers as RequestWithToken;
 
       const { id } = tokenService.decode(authorization);
 
-      const user = userService.findById(id);
-      console.log('user', user);
-      console.log(name, lifetime, maxUsersCount);
+      const user = await userService.findById(id);
 
-      res.status(200).json({ message: 'successnpx eslint' });
+      const room = await roomService.create({
+        userId: user.id,
+        name: name,
+        lifetime: lifetime,
+        maxUsersCount: maxUsersCount,
+      });
+
+      res.status(200).json({ roomId: room.id });
     } catch (error) {
       console.error(error);
 
