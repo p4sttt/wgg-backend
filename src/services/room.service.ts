@@ -8,25 +8,29 @@ class RoomService {
   async create(data: RoomCreateData) {
     const { name, lifetime, maxUsersCount, userId } = data;
 
-    const createdAtDate = new Date(Date.now());
-    const deleteAtDate =
-      lifetime !== 'inf'
-        ? new Date(
-            createdAtDate.setDate(createdAtDate.getDate() + Number(lifetime)),
-          )
-        : null;
+    const deleteAtDate = new Date(Date.now());
+    deleteAtDate.setDate(deleteAtDate.getDate() + Number(lifetime));
 
     const room = roomClient.create({
       data: {
         name: name,
         maxUsersCount: maxUsersCount,
-        createdAt: createdAtDate,
-        deleteAt: deleteAtDate,
+        createdAt: new Date(Date.now()),
+        deleteAt: lifetime !== 'inf' ? deleteAtDate : null,
         userId: userId,
       },
     });
 
     return room;
+  }
+  async getUserRooms(userId: string) {
+    const userRooms = await roomClient.findMany({
+      where: {
+        userId: userId,
+      },
+    });
+
+    return userRooms;
   }
 }
 

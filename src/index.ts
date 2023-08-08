@@ -4,7 +4,7 @@ import express from 'express';
 import http from 'http';
 import { Server } from 'socket.io';
 
-import { authRouter } from '~/routes';
+import { authRouter, roomRouter } from '~/routes';
 
 import handleSocketConnection from './socket';
 
@@ -21,6 +21,7 @@ const io = new Server(httpServer, { cors: { origin: '*' } });
 io.on('connection', handleSocketConnection);
 
 app.use('/api/auth', authRouter);
+app.use('/api/room', roomRouter);
 
 const port = process.env.PORT || 3000;
 httpServer.listen(port, () => {

@@ -24,7 +24,8 @@
       "~/controllers": ["controllers/"],
       "~/types": ["types/"],
       "~/helpers": ["helpers/"],
-      "~/services": ["services/"]
+      "~/services": ["services/"],
+      "~/middlewares": ["middlewares/"]
     }
   },
   "ts-node": {

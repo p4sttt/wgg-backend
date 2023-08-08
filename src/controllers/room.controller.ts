@@ -1,7 +1,6 @@
 import { Request, Response } from 'express';
-import { tokenService, userService } from 'services';
-import { roomService } from 'services/room.service';
 
+import { roomService, tokenService, userService } from '~/services';
 import { RequestWithToken } from '~/types';
 
 class Controller {
@@ -22,6 +21,27 @@ class Controller {
       });
 
       res.status(200).json({ roomId: room.id });
+    } catch (error) {
+      console.error(error);
+
+      return res.status(500).json({
+        message: 'Something went wrong',
+      });
+    }
+  }
+  async getCreatedRooms(req: Request, res: Response) {
+    try {
+      const { authorization } = req.headers as RequestWithToken;
+
+      const { id } = tokenService.decode(authorization);
+
+      const user = await userService.findById(id);
+
+      const rooms = await roomService.getUserRooms(user.id);
+
+      res.status(200).json({
+        rooms,
+      });
     } catch (error) {
       console.error(error);
 

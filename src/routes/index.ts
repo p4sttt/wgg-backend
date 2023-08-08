@@ -1,3 +1,4 @@
 import authRouter from './auth.router';
+import roomRouter from './room.router';
 
-export { authRouter };
+export { authRouter, roomRouter };

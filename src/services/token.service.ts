@@ -22,6 +22,12 @@ class TokenService {
 
     return payload as AuthTokenPayload;
   }
+
+  verify(token: string) {
+    const payload = jwt.verify(token, privateKey);
+
+    return payload as AuthTokenPayload;
+  }
 }
 
 export const tokenService = new TokenService();
