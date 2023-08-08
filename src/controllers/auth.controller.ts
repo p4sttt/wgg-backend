@@ -1,9 +1,9 @@
 import { PrismaClient } from '@prisma/client';
-import { compareSync, hashSync } from 'bcrypt';
+import { compareSync } from 'bcrypt';
 import { Request, Response } from 'express';
 import { validationResult } from 'express-validator';
 
-import { createToken } from '~/helpers';
+import { tokenService, userService } from '~/services';
 import { UserLoginData, UserRegisterData } from '~/types';
 
 const userClient = new PrismaClient().user;
@@ -37,7 +37,7 @@ class Controller {
         });
       }
 
-      const token = createToken<{ userId: string }>({ userId: user.id });
+      const token = tokenService.createAuthToken(user.id);
 
       return res.status(200).json({
         token: token,
@@ -65,25 +65,13 @@ class Controller {
 
       const { email, password, username } = req.body as UserRegisterData;
 
-      const existUser = await userClient.findFirst({ where: { email: email } });
-
-      if (existUser) {
-        return res
-          .status(400)
-          .json({ message: 'A user with such an email already exists' });
-      }
-
-      const passwordHash = hashSync(password, 5);
-
-      const user = await userClient.create({
-        data: {
-          username: username,
-          email: email,
-          password: passwordHash,
-        },
+      const user = await userService.create({
+        email,
+        password,
+        username,
       });
 
-      const token = createToken<{ userId: string }>({ userId: user.id });
+      const token = tokenService.createAuthToken(user.id);
 
       return res.status(200).json({
         token: token,

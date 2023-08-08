@@ -5,7 +5,9 @@
   "main": "src/index.js",
   "scripts": {
     "dev": "nodemon src/index.ts",
-    "migrate": "prisma migrate dev"
+    "migrate": "prisma migrate dev",
+    "prettier": "npx prettier --write . ",
+    "lint": "npx eslint ."
   },
   "repository": {
     "type": "git",

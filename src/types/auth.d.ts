@@ -8,3 +8,7 @@ export interface UserRegisterData {
   email: string;
   password: string;
 }
+
+export interface AuthTokenPayload {
+  id: string;
+}

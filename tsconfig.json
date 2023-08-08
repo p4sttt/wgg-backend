@@ -23,7 +23,8 @@
       "~/routes": ["routes/"],
       "~/controllers": ["controllers/"],
       "~/types": ["types/"],
-      "~/helpers": ["helpers/"]
+      "~/helpers": ["helpers/"],
+      "~/services": ["services/"]
     }
   },
   "ts-node": {

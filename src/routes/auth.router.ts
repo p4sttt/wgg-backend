@@ -13,14 +13,14 @@ router.post(
       .notEmpty()
       .withMessage('email is required')
       .isLength({ max: 20 })
-      .withMessage('email max length is 30 symbols')
+      .withMessage('email max length is 20 symbols')
       .isEmail()
       .withMessage('incorrect email'),
     body('password')
       .notEmpty()
       .withMessage('password is required')
       .isLength({ max: 50 })
-      .withMessage('password max length is 30 symbols'),
+      .withMessage('password max length is 50 symbols'),
   ],
   controller.login,
 );
