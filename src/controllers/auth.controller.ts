@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { User } from '@prisma/client';
 import { compareSync } from 'bcrypt';
 import { Request, Response } from 'express';
 import { validationResult } from 'express-validator';
@@ -6,22 +6,21 @@ import { validationResult } from 'express-validator';
 import { tokenService, userService } from '~/services';
 import { UserLoginData, UserRegisterData } from '~/types';
 
-const userClient = new PrismaClient().user;
-
 class Controller {
   async login(req: Request, res: Response) {
     try {
       const validationErrors = validationResult(req);
 
       if (!validationErrors.isEmpty()) {
-        return res.status(400).json(validationErrors);
+        return res.status(400).json({
+          message: 'Validation error',
+          errors: validationErrors.array(),
+        });
       }
 
       const { email, password } = req.body as UserLoginData;
 
-      const user = await userClient.findFirst({
-        where: { email: email },
-      });
+      const user = await userService.findByEmail(email);
 
       if (!user) {
         return res.status(400).json({
@@ -60,16 +59,26 @@ class Controller {
       const validationErrors = validationResult(req);
 
       if (!validationErrors.isEmpty()) {
-        return res.status(400).json(validationErrors);
+        return res.status(400).json({
+          message: 'Validation error',
+          errors: validationErrors.array(),
+        });
       }
 
       const { email, password, username } = req.body as UserRegisterData;
 
-      const user = await userService.create({
-        email,
-        password,
-        username,
-      });
+      let user: User;
+      try {
+        user = await userService.create({
+          email,
+          password,
+          username,
+        });
+      } catch (error) {
+        return res.status(400).json({
+          message: error.message,
+        });
+      }
 
       const token = tokenService.createAuthToken(user.id);
 

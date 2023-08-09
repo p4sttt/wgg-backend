@@ -12,7 +12,7 @@ class UserService {
     const existUser = await userClient.findFirst({ where: { email: email } });
 
     if (existUser) {
-      throw new Error('user with this email already exists');
+      throw new Error('User with this email already exists');
     }
 
     const passwordHash = hashSync(password, 5);
@@ -33,7 +33,7 @@ class UserService {
     return user;
   }
   async findByEmail(email: string) {
-    const user = await userClient.findFirst({ where: { id: email } });
+    const user = await userClient.findFirst({ where: { email: email } });
 
     return user;
   }

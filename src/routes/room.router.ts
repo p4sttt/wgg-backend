@@ -23,15 +23,14 @@ router.post(
       .withMessage('max users count mast be number')
       .isInt({ min: 2, max: 20 })
       .withMessage('max users count mast be between 2 and 20'),
-    body('lifatime')
+    body('lifetime')
       .notEmpty()
       .withMessage('lifetime is required')
       .isIn(['1', '3', '7', 'inf'])
       .withMessage('lifetime must be 1, 3, 7 or inf'),
   ],
-  requireAuth,
   controller.createRoom,
 );
-router.get('/', requireAuth, controller.getCreatedRooms);
+router.get('/', requireAuth, controller.getUserRooms);
 
 export default router;

@@ -1,12 +1,32 @@
 import { PrismaClient } from '@prisma/client';
 
-import { RoomCreateData } from '~/types';
-
 const roomClient = new PrismaClient().room;
 
 class RoomService {
-  async create(data: RoomCreateData) {
-    const { name, lifetime, maxUsersCount, userId } = data;
+  async createPermanentRoom(data: {
+    name: string;
+    maxUsersCount: number;
+    userId: string;
+  }) {
+    const { name, maxUsersCount, userId } = data;
+
+    const room = roomClient.create({
+      data: {
+        name: name,
+        maxUsersCount: maxUsersCount,
+        createdAt: new Date(Date.now()),
+        userId: userId,
+      },
+    });
+
+    return room;
+  }
+  async createTemporaryRoom(data: {
+    name: string;
+    lifetime: string;
+    maxUsersCount: number;
+  }) {
+    const { name, lifetime, maxUsersCount } = data;
 
     const deleteAtDate = new Date(Date.now());
     deleteAtDate.setDate(deleteAtDate.getDate() + Number(lifetime));
@@ -16,8 +36,7 @@ class RoomService {
         name: name,
         maxUsersCount: maxUsersCount,
         createdAt: new Date(Date.now()),
-        deleteAt: lifetime !== 'inf' ? deleteAtDate : null,
-        userId: userId,
+        deleteAt: deleteAtDate,
       },
     });
 

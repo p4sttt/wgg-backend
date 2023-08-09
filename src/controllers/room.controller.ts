@@ -1,35 +1,62 @@
+import { Room } from '@prisma/client';
 import { Request, Response } from 'express';
+import { validationResult } from 'express-validator';
 
 import { roomService, tokenService, userService } from '~/services';
 import { RequestWithToken } from '~/types';
 
 class Controller {
+  // TODO: remember user by browser/ip/something else shit to protect by spam
   async createRoom(req: Request, res: Response) {
     try {
+      const validationErrors = validationResult(req);
+
+      if (!validationErrors.isEmpty()) {
+        return res.status(400).json({
+          message: 'Validation error',
+          errors: validationErrors.array(),
+        });
+      }
+
       const { name, lifetime, maxUsersCount } = req.body;
-      const { authorization } = req.headers as RequestWithToken;
 
-      const { id } = tokenService.decode(authorization);
+      let room: Room;
+      if (lifetime == 'inf') {
+        try {
+          const { authorization } = req.headers as RequestWithToken;
 
-      const user = await userService.findById(id);
+          const { id } = tokenService.verify(authorization);
 
-      const room = await roomService.create({
-        userId: user.id,
-        name: name,
-        lifetime: lifetime,
-        maxUsersCount: maxUsersCount,
-      });
+          const user = await userService.findById(id);
+
+          room = await roomService.createPermanentRoom({
+            userId: user.id,
+            name: name,
+            maxUsersCount: maxUsersCount,
+          });
+        } catch (error) {
+          return res.status(500).json({
+            message: 'Access not allowed',
+          });
+        }
+      } else {
+        room = await roomService.createTemporaryRoom({
+          name: name,
+          lifetime: lifetime,
+          maxUsersCount: maxUsersCount,
+        });
+      }
 
       res.status(200).json({ roomId: room.id });
     } catch (error) {
-      console.error(error);
+      console.log(error);
 
       return res.status(500).json({
         message: 'Something went wrong',
       });
     }
   }
-  async getCreatedRooms(req: Request, res: Response) {
+  async getUserRooms(req: Request, res: Response) {
     try {
       const { authorization } = req.headers as RequestWithToken;
 
