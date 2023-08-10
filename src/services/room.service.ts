@@ -3,40 +3,34 @@ import { PrismaClient } from '@prisma/client';
 const roomClient = new PrismaClient().room;
 
 class RoomService {
-  async createPermanentRoom(data: {
+  async createRoom(data: {
     name: string;
     maxUsersCount: number;
-    userId: string;
-  }) {
-    const { name, maxUsersCount, userId } = data;
-
-    const room = roomClient.create({
-      data: {
-        name: name,
-        maxUsersCount: maxUsersCount,
-        createdAt: new Date(Date.now()),
-        userId: userId,
-      },
-    });
-
-    return room;
-  }
-  async createTemporaryRoom(data: {
-    name: string;
+    userId?: string;
     lifetime: string;
-    maxUsersCount: number;
   }) {
-    const { name, lifetime, maxUsersCount } = data;
+    const { name, maxUsersCount, userId = null, lifetime } = data;
 
-    const deleteAtDate = new Date(Date.now());
-    deleteAtDate.setDate(deleteAtDate.getDate() + Number(lifetime));
+    if (!userId && lifetime == 'inf') {
+      throw new Error('Access not allowed');
+    }
 
-    const room = roomClient.create({
+    let deleteAt: Date | null = null;
+
+    if (lifetime !== 'inf') {
+      const dateNow = new Date(Date.now());
+      new Date(Date.now()).setDate(
+        new Date(Date.now()).getDate() + Number(lifetime),
+      );
+      deleteAt = dateNow;
+    }
+
+    const room = await roomClient.create({
       data: {
         name: name,
         maxUsersCount: maxUsersCount,
-        createdAt: new Date(Date.now()),
-        deleteAt: deleteAtDate,
+        userId: userId,
+        deleteAt: deleteAt,
       },
     });
 

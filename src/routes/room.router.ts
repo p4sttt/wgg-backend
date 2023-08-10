@@ -13,9 +13,8 @@ router.post(
     body('name')
       .notEmpty()
       .withMessage('name is required')
-      .isLength({ max: 20 })
-      .withMessage('name max length is 20 symbols')
-      .isEmail(),
+      .isLength({ max: 50 })
+      .withMessage('name max length is 50 symbols'),
     body('maxUsersCount')
       .notEmpty()
       .withMessage('max users count is required')
