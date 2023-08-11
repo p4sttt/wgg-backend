@@ -2,9 +2,10 @@ import { User } from '@prisma/client';
 import { compareSync } from 'bcrypt';
 import { Request, Response } from 'express';
 
-import { Controller } from '~/controllers';
 import { tokenService, userService } from '~/services';
 import { UserLoginData, UserRegisterData } from '~/types';
+
+import { Controller } from './controller';
 
 class AuthController extends Controller {
   async login(req: Request, res: Response) {

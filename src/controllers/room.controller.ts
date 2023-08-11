@@ -1,7 +1,7 @@
 import { User } from '@prisma/client';
 import { Request, Response } from 'express';
 
-import { Controller } from '~/controllers';
+import { Controller } from './controller';
 import { roomService, tokenService, userService } from '~/services';
 import { RequestWithToken } from '~/types';
 
