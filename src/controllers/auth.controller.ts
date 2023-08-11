@@ -40,7 +40,7 @@ class AuthController extends Controller {
         },
       });
     } catch (error) {
-      this.handleException(res, error);
+      this.handleException(req, res, error);
     }
   }
 
@@ -73,7 +73,7 @@ class AuthController extends Controller {
         },
       });
     } catch (error) {
-      this.handleException(res, error);
+      this.handleException(req, res, error);
     }
   }
 }

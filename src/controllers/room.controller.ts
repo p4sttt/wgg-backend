@@ -1,9 +1,10 @@
 import { User } from '@prisma/client';
 import { Request, Response } from 'express';
 
-import { Controller } from './controller';
 import { roomService, tokenService, userService } from '~/services';
 import { RequestWithToken } from '~/types';
+
+import { Controller } from './controller';
 
 class RoomController extends Controller {
   // TODO: remember user by browser/ip/something else shit to protect by spam
@@ -37,7 +38,7 @@ class RoomController extends Controller {
           });
         });
     } catch (error) {
-      this.handleException(res, error);
+      this.handleException(req, res, error);
     }
   }
   async getUserRooms(req: Request, res: Response) {
@@ -54,14 +55,14 @@ class RoomController extends Controller {
         rooms,
       });
     } catch (error) {
-      this.handleException(res, error);
+      this.handleException(req, res, error);
     }
   }
   async joinRoom(req: Request, res: Response) {
     try {
       this.handleValidationErrors(req, res);
     } catch (error) {
-      this.handleException(res, error);
+      this.handleException(req, res, error);
     }
   }
 }

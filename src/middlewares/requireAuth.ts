@@ -1,6 +1,8 @@
 import { NextFunction, Request, Response } from 'express';
 import { tokenService, userService } from 'services';
 
+import { errorService } from '~/services';
+
 export const requireAuth = (
   req: Request,
   res: Response,
@@ -8,19 +10,17 @@ export const requireAuth = (
 ) => {
   try {
     const { authorization } = req.headers;
-    
+
     const { id } = tokenService.verify(authorization as string);
     const user = userService.findById(id);
     if (!user) {
-      res.status(403).json({
-        message: 'Access is not allowed',
-      });
+      return errorService.Unauthorized(req, res);
     }
 
     next();
   } catch (error) {
-    res.status(403).json({
-      message: 'Access is not allowed',
-    });
+    console.error(error.message);
+
+    return errorService.Unauthorized(req, res);
   }
 };
