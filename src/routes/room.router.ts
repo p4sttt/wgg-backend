@@ -1,11 +1,10 @@
 import { Router } from 'express';
 import { body } from 'express-validator';
 
-import { RoomController } from '~/controllers';
+import { roomController } from '~/controllers';
 import { requireAuth } from '~/middlewares';
 
 const router = Router();
-const controller = new RoomController();
 
 router.post(
   '/',
@@ -28,8 +27,23 @@ router.post(
       .isIn(['1', '3', '7', 'inf'])
       .withMessage('lifetime must be 1, 3, 7 or inf'),
   ],
-  controller.createRoom,
+  roomController.createRoom,
 );
-router.get('/', requireAuth, controller.getUserRooms);
+router.get('/', requireAuth, roomController.getUserRooms);
+router.post(
+  '/join',
+  [
+    body('username')
+      .notEmpty()
+      .withMessage('username is required')
+      .isLength({ min: 2, max: 20 })
+      .withMessage('username must be between 2 and 20'),
+    body('roomId')
+      .notEmpty()
+      .withMessage('roomId is required')
+      .isLength({ max: 30 }),
+  ],
+  roomController.joinRoom,
+);
 
 export default router;

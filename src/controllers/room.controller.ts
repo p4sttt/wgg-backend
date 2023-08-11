@@ -1,22 +1,15 @@
 import { User } from '@prisma/client';
 import { Request, Response } from 'express';
-import { validationResult } from 'express-validator';
 
+import { Controller } from '~/controllers';
 import { roomService, tokenService, userService } from '~/services';
 import { RequestWithToken } from '~/types';
 
-class Controller {
+class RoomController extends Controller {
   // TODO: remember user by browser/ip/something else shit to protect by spam
   async createRoom(req: Request, res: Response) {
     try {
-      const validationErrors = validationResult(req);
-
-      if (!validationErrors.isEmpty()) {
-        return res.status(400).json({
-          message: 'Validation error',
-          errors: validationErrors.array(),
-        });
-      }
+      this.handleValidationErrors(req, res);
 
       const { name, lifetime, maxUsersCount } = req.body;
       const { authorization } = req.headers as RequestWithToken;
@@ -44,11 +37,7 @@ class Controller {
           });
         });
     } catch (error) {
-      console.log(error);
-
-      return res.status(500).json({
-        message: 'Something went wrong',
-      });
+      this.handleException(res, error);
     }
   }
   async getUserRooms(req: Request, res: Response) {
@@ -65,13 +54,16 @@ class Controller {
         rooms,
       });
     } catch (error) {
-      console.error(error);
-
-      return res.status(500).json({
-        message: 'Something went wrong',
-      });
+      this.handleException(res, error);
+    }
+  }
+  async joinRoom(req: Request, res: Response) {
+    try {
+      this.handleValidationErrors(req, res);
+    } catch (error) {
+      this.handleException(res, error);
     }
   }
 }
 
-export default Controller;
+export const roomController = new RoomController();

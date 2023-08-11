@@ -1,10 +1,9 @@
 import { Router } from 'express';
 import { body } from 'express-validator';
 
-import { AuthController } from '~/controllers';
+import { authController } from '~/controllers';
 
 const router = Router();
-const controller = new AuthController();
 
 router.post(
   '/login',
@@ -22,7 +21,7 @@ router.post(
       .isLength({ max: 50 })
       .withMessage('password max length is 50 symbols'),
   ],
-  controller.login,
+  authController.login,
 );
 router.post(
   '/register',
@@ -45,7 +44,7 @@ router.post(
       .isLength({ max: 50 })
       .withMessage('password max length is 30 symbols'),
   ],
-  controller.register,
+  authController.register,
 );
 
 export default router;

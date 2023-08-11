@@ -1,22 +1,15 @@
 import { User } from '@prisma/client';
 import { compareSync } from 'bcrypt';
 import { Request, Response } from 'express';
-import { validationResult } from 'express-validator';
 
+import { Controller } from '~/controllers';
 import { tokenService, userService } from '~/services';
 import { UserLoginData, UserRegisterData } from '~/types';
 
-class Controller {
+class AuthController extends Controller {
   async login(req: Request, res: Response) {
     try {
-      const validationErrors = validationResult(req);
-
-      if (!validationErrors.isEmpty()) {
-        return res.status(400).json({
-          message: 'Validation error',
-          errors: validationErrors.array(),
-        });
-      }
+      this.handleValidationErrors(req, res);
 
       const { email, password } = req.body as UserLoginData;
 
@@ -46,24 +39,13 @@ class Controller {
         },
       });
     } catch (error) {
-      console.error(error);
-
-      return res.status(500).json({
-        message: 'Something went wrong',
-      });
+      this.handleException(res, error);
     }
   }
 
   async register(req: Request, res: Response) {
     try {
-      const validationErrors = validationResult(req);
-
-      if (!validationErrors.isEmpty()) {
-        return res.status(400).json({
-          message: 'Validation error',
-          errors: validationErrors.array(),
-        });
-      }
+      this.handleValidationErrors(req, res);
 
       const { email, password, username } = req.body as UserRegisterData;
 
@@ -90,13 +72,9 @@ class Controller {
         },
       });
     } catch (error) {
-      console.error(error);
-
-      return res.status(500).json({
-        message: 'Something went wrong',
-      });
+      this.handleException(res, error);
     }
   }
 }
 
-export default Controller;
+export const authController = new AuthController();

@@ -1,4 +1,3 @@
-import AuthController from './auth.controller';
-import RoomController from './room.controller';
-
-export { AuthController, RoomController };
+export * from './auth.controller';
+export * from './room.controller';
+export * from './controller';

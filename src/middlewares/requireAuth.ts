@@ -8,7 +8,7 @@ export const requireAuth = (
 ) => {
   try {
     const { authorization } = req.headers;
-
+    
     const { id } = tokenService.verify(authorization as string);
     const user = userService.findById(id);
     if (!user) {
