@@ -1,5 +1,7 @@
-import cors from 'cors';
 import { config } from 'dotenv';
+config();
+
+import cors from 'cors';
 import express from 'express';
 import http from 'http';
 import { Server } from 'socket.io';
@@ -7,8 +9,6 @@ import { Server } from 'socket.io';
 import { authRouter, roomRouter } from '~/routes';
 
 import handleSocketConnection from './socket';
-
-config();
 
 const app = express();
 

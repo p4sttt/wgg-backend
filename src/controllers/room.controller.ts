@@ -10,7 +10,7 @@ class RoomController extends Controller {
   // TODO: remember user by browser/ip/something else shit to protect by spam
   async createRoom(req: Request, res: Response) {
     try {
-      this.handleValidationErrors(req, res);
+      super.handleValidationErrors(req, res);
 
       const { name, lifetime, maxUsersCount } = req.body;
       const { authorization } = req.headers as RequestWithToken;
@@ -38,7 +38,7 @@ class RoomController extends Controller {
           });
         });
     } catch (error) {
-      this.handleException(req, res, error);
+      super.handleException(req, res, error);
     }
   }
   async getUserRooms(req: Request, res: Response) {
@@ -55,14 +55,14 @@ class RoomController extends Controller {
         rooms,
       });
     } catch (error) {
-      this.handleException(req, res, error);
+      super.handleException(req, res, error);
     }
   }
   async joinRoom(req: Request, res: Response) {
     try {
-      this.handleValidationErrors(req, res);
+      super.handleValidationErrors(req, res);
     } catch (error) {
-      this.handleException(req, res, error);
+      super.handleException(req, res, error);
     }
   }
 }

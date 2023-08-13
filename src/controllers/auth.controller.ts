@@ -2,7 +2,7 @@ import { User } from '@prisma/client';
 import { compareSync } from 'bcrypt';
 import { Request, Response } from 'express';
 
-import { tokenService, userService } from '~/services';
+import { errorService, tokenService, userService } from '~/services';
 import { UserLoginData, UserRegisterData } from '~/types';
 
 import { Controller } from './controller';
@@ -10,7 +10,7 @@ import { Controller } from './controller';
 class AuthController extends Controller {
   async login(req: Request, res: Response) {
     try {
-      this.handleValidationErrors(req, res);
+      super.handleValidationErrors(req, res);
 
       const { email, password } = req.body as UserLoginData;
 
@@ -25,9 +25,7 @@ class AuthController extends Controller {
       const isEqualPassword = compareSync(password, user.password);
 
       if (!isEqualPassword) {
-        return res.status(400).json({
-          message: 'Authorization failed, check your email or password',
-        });
+        return errorService.BadRequest(req, res, 'Authorization error, check your username or password');
       }
 
       const token = tokenService.createAuthToken(user.id);
@@ -40,13 +38,13 @@ class AuthController extends Controller {
         },
       });
     } catch (error) {
-      this.handleException(req, res, error);
+      super.handleException(req, res, error);
     }
   }
 
   async register(req: Request, res: Response) {
     try {
-      this.handleValidationErrors(req, res);
+      super.handleValidationErrors(req, res);
 
       const { email, password, username } = req.body as UserRegisterData;
 
@@ -73,7 +71,7 @@ class AuthController extends Controller {
         },
       });
     } catch (error) {
-      this.handleException(req, res, error);
+      super.handleException(req, res, error);
     }
   }
 }
