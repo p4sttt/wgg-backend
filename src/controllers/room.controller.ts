@@ -1,7 +1,13 @@
 import { User } from '@prisma/client';
 import { Request, Response } from 'express';
 
-import { roomService, tokenService, userService } from '~/services';
+import {
+  errorService,
+  roomService,
+  tokenService,
+  userService,
+} from '~/services';
+import { socketService } from '~/services';
 import { RequestWithToken } from '~/types';
 
 import { Controller } from './controller';
@@ -10,8 +16,6 @@ class RoomController extends Controller {
   // TODO: remember user by browser/ip/something else shit to protect by spam
   async createRoom(req: Request, res: Response) {
     try {
-      super.handleValidationErrors(req, res);
-
       const { name, lifetime, maxUsersCount } = req.body;
       const { authorization } = req.headers as RequestWithToken;
 
@@ -60,7 +64,23 @@ class RoomController extends Controller {
   }
   async joinRoom(req: Request, res: Response) {
     try {
-      super.handleValidationErrors(req, res);
+      const { roomId, username } = req.body as {
+        roomId: string;
+        username: string;
+      };
+
+      const room = await roomService.findRoomById(roomId);
+      if (!room) {
+        return errorService.BadRequest(req, res, {
+          message: 'Error, no room with this id was found',
+        });
+      }
+
+      socketService.join(room, username);
+
+      return res.status(200).json({
+        roomId: room.id,
+      });
     } catch (error) {
       super.handleException(req, res, error);
     }

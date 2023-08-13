@@ -8,7 +8,10 @@ class Controller {
     const validationErrors = validationResult(req);
 
     if (!validationErrors.isEmpty()) {
-      return errorService.BadRequest(req, res);
+      return errorService.BadRequest(req, res, {
+        message: 'Invalid values, validation error',
+        errors: validationErrors.array(),
+      });
     }
   }
 

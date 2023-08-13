@@ -45,6 +45,15 @@ class RoomService {
 
     return userRooms;
   }
+  async findRoomById(roomId: string) {
+    const room = roomClient.findFirst({
+      where: {
+        id: roomId,
+      },
+    });
+
+    return room;
+  }
 }
 
 export const roomService = new RoomService();

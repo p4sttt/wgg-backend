@@ -4,26 +4,23 @@ config();
 import cors from 'cors';
 import express from 'express';
 import http from 'http';
-import { Server } from 'socket.io';
 
 import { authRouter, roomRouter } from '~/routes';
-
-import handleSocketConnection from './socket';
+import { socketService } from '~/services';
 
 const app = express();
 
-app.use(cors());
+app.use(cors({ origin: process.env.ALLOWED_URLS }));
 app.use(express.json());
 
 const httpServer = http.createServer(app);
 
-const io = new Server(httpServer, { cors: { origin: '*' } });
-io.on('connection', handleSocketConnection);
+socketService.listen();
 
 app.use('/api/auth', authRouter);
 app.use('/api/room', roomRouter);
 
-const port = process.env.PORT || 3000;
+const port = Number(process.env.PORT);
 httpServer.listen(port, () => {
-  console.log(`server started on port ${port}`);
+  console.log(`server started on port: ${port}`);
 });

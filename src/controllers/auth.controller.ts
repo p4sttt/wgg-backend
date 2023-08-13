@@ -10,8 +10,6 @@ import { Controller } from './controller';
 class AuthController extends Controller {
   async login(req: Request, res: Response) {
     try {
-      super.handleValidationErrors(req, res);
-
       const { email, password } = req.body as UserLoginData;
 
       const user = await userService.findByEmail(email);
@@ -25,7 +23,9 @@ class AuthController extends Controller {
       const isEqualPassword = compareSync(password, user.password);
 
       if (!isEqualPassword) {
-        return errorService.BadRequest(req, res, 'Authorization error, check your username or password');
+        return errorService.BadRequest(req, res, {
+          message: 'Authorization error, check your username or password',
+        });
       }
 
       const token = tokenService.createAuthToken(user.id);
@@ -44,8 +44,6 @@ class AuthController extends Controller {
 
   async register(req: Request, res: Response) {
     try {
-      super.handleValidationErrors(req, res);
-
       const { email, password, username } = req.body as UserRegisterData;
 
       let user: User;

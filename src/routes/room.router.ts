@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { body } from 'express-validator';
 
 import { roomController } from '~/controllers';
-import { requireAuth } from '~/middlewares';
+import { handleValidationErrors, requireAuth } from '~/middlewares';
 
 const router = Router();
 
@@ -27,6 +27,7 @@ router.post(
       .isIn(['1', '3', '7', 'inf'])
       .withMessage('lifetime must be 1, 3, 7 or inf'),
   ],
+  handleValidationErrors,
   roomController.createRoom,
 );
 router.get('/', requireAuth, roomController.getUserRooms);
@@ -34,15 +35,18 @@ router.post(
   '/join',
   [
     body('username')
+      .trim()
       .notEmpty()
       .withMessage('username is required')
-      .isLength({ min: 2, max: 20 })
-      .withMessage('username must be between 2 and 20'),
+      .isLength({ min: 2, max: 100 })
+      .withMessage('username must be between 2 and 100'),
     body('roomId')
+      .trim()
       .notEmpty()
       .withMessage('roomId is required')
-      .isLength({ max: 30 }),
+      .isLength({ max: 100 }),
   ],
+  handleValidationErrors,
   roomController.joinRoom,
 );
 

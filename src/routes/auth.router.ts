@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { body } from 'express-validator';
+import { handleValidationErrors } from 'middlewares';
 
 import { authController } from '~/controllers';
 
@@ -21,6 +22,7 @@ router.post(
       .isLength({ max: 50 })
       .withMessage('password max length is 50 symbols'),
   ],
+  handleValidationErrors,
   authController.login,
 );
 router.post(
@@ -44,6 +46,7 @@ router.post(
       .isLength({ max: 50 })
       .withMessage('password max length is 30 symbols'),
   ],
+  handleValidationErrors,
   authController.register,
 );
 
