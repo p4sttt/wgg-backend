@@ -19,8 +19,19 @@ class SocketService {
     this.room.on('connection', socket => {
       console.log(`connected: ${socket.id}`);
 
-      socket.on('ping', () => {
-        socket.emit('pong');
+      socket.on('change-link', (link: string) => {
+        const arrayOfRooms = [...socket.rooms];
+        socket.to(arrayOfRooms[1]).emit('resend-link', link);
+      });
+
+      socket.on('join', (roomId: string) => {
+        console.log(`${socket.id} join into ${roomId}`);
+        socket.join(roomId);
+      });
+
+      socket.on('leave', (roomId: string) => {
+        console.log(`${socket.id} leave from ${roomId}`);
+        socket.leave(roomId);
       });
 
       socket.on('disconnect', () => {
