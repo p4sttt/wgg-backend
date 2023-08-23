@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import { tokenService, userService } from 'services';
 
-import { errorService } from '~/services';
+import { HttpError } from '~/services';
 
 export const requireAuth = (
   req: Request,
@@ -14,13 +14,13 @@ export const requireAuth = (
     const { id } = tokenService.verify(authorization as string);
     const user = userService.findById(id);
     if (!user) {
-      return errorService.Unauthorized(req, res);
+      throw HttpError.Unauthorized();
     }
 
     next();
   } catch (error) {
     console.error(error.message);
 
-    return errorService.Unauthorized(req, res);
+    throw HttpError.Unauthorized();
   }
 };

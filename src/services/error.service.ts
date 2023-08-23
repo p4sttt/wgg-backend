@@ -1,81 +1,37 @@
-import { Request, Response } from 'express';
+import { NumericRange } from 'types';
 
-class ErrorObj {
-  private message: string;
-  private timestamp: string;
-  private route: string;
-  private errors: Array<object>;
+class HttpError extends Error {
+  public readonly status: number;
+  public readonly errors: Array<object> = [];
 
-  constructor({
-    message,
-    route,
-    errors,
-  }: {
-    message: string;
-    route: string;
-    errors?: Array<object>;
-  }) {
-    this.message = message;
-    this.route = route;
-    this.timestamp = new Date(Date.now()).toLocaleString();
+  constructor(
+    status: NumericRange<400, 599>,
+    message: string,
+    errors: Array<object> = [],
+  ) {
+    super(message);
+    this.status = status;
     this.errors = errors;
   }
 
-  public toJson() {
-    const json = {
-      timestamp: this.timestamp,
-      route: this.route,
-      message: this.message,
-    };
+  public static BadRequest(
+    message: string = 'Bad Request',
+    errors: Array<object> = [],
+  ) {
+    return new HttpError(400, message, errors);
+  }
 
-    this.errors.length ? (json['errors'] = this.errors) : null;
+  public static Unauthorized() {
+    return new HttpError(401, 'Authorization is required');
+  }
 
-    return json;
+  public static Forbidden() {
+    return new HttpError(403, 'Access not allowed');
+  }
+
+  public static InternalServerError() {
+    return new HttpError(500, 'Something went wrong');
   }
 }
 
-interface Options {
-  message?: string;
-  errors?: Array<object>;
-}
-
-class Error {
-  public BadRequest(req: Request, res: Response, options?: Options) {
-    const error = new ErrorObj({
-      message: options?.message || 'Bas Request',
-      route: req.baseUrl + req.route.path,
-      errors: options?.errors,
-    });
-
-    return res.status(400).json(error.toJson());
-  }
-
-  public Forbidden(req: Request, res: Response, options?: Options) {
-    const error = new ErrorObj({
-      message: options?.message || 'Access is not allowed',
-      route: req.baseUrl + req.route.path,
-    });
-
-    return res.status(401).json(error.toJson());
-  }
-
-  public Unauthorized(req: Request, res: Response, options?: Options) {
-    const error = new ErrorObj({
-      message: options?.message || 'Authorization is required',
-      route: req.baseUrl + req.route.path,
-    });
-
-    return res.status(403).json(error);
-  }
-
-  public InternalServerError(req: Request, res: Response) {
-    const error = new ErrorObj({
-      message: 'Something went wrong',
-      route: req.baseUrl + req.route.path,
-    });
-
-    return res.status(500).json(error);
-  }
-}
-
-export const errorService = new Error();
+export { HttpError };

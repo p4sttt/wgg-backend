@@ -1,31 +1,29 @@
 import { User } from '@prisma/client';
 import { compareSync } from 'bcrypt';
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 
-import { errorService, tokenService, userService } from '~/services';
+import { HttpError, tokenService, userService } from '~/services';
 import { UserLoginData, UserRegisterData } from '~/types';
 
-import { Controller } from './controller';
-
-class AuthController extends Controller {
-  async login(req: Request, res: Response) {
+class AuthController {
+  async login(req: Request, res: Response, next: NextFunction) {
     try {
       const { email, password } = req.body as UserLoginData;
 
       const user = await userService.findByEmail(email);
 
       if (!user) {
-        return res.status(400).json({
-          message: 'Authorization failed, check your email or password',
-        });
+        throw HttpError.BadRequest(
+          'Authorization failed, check your email or password',
+        );
       }
 
       const isEqualPassword = compareSync(password, user.password);
 
       if (!isEqualPassword) {
-        return errorService.BadRequest(req, res, {
-          message: 'Authorization error, check your username or password',
-        });
+        throw HttpError.BadRequest(
+          'Authorization error, check your username or password',
+        );
       }
 
       const token = tokenService.createAuthToken(user.id);
@@ -38,11 +36,11 @@ class AuthController extends Controller {
         },
       });
     } catch (error) {
-      super.handleException(req, res, error);
+      next(error);
     }
   }
 
-  async register(req: Request, res: Response) {
+  async register(req: Request, res: Response, next: NextFunction) {
     try {
       const { email, password, username } = req.body as UserRegisterData;
 
@@ -54,9 +52,7 @@ class AuthController extends Controller {
           username,
         });
       } catch (error) {
-        return res.status(400).json({
-          message: error.message,
-        });
+        throw HttpError.BadRequest(error.message);
       }
 
       const token = tokenService.createAuthToken(user.id);
@@ -69,7 +65,7 @@ class AuthController extends Controller {
         },
       });
     } catch (error) {
-      super.handleException(req, res, error);
+      next(error);
     }
   }
 }

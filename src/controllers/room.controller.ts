@@ -1,20 +1,13 @@
 import { User } from '@prisma/client';
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 
-import {
-  errorService,
-  roomService,
-  tokenService,
-  userService,
-} from '~/services';
+import { HttpError, roomService, tokenService, userService } from '~/services';
 import { socketService } from '~/services';
 import { RequestWithToken } from '~/types';
 
-import { Controller } from './controller';
-
-class RoomController extends Controller {
+class RoomController {
   // TODO: remember user by browser/ip/something else shit to protect by spam
-  async createRoom(req: Request, res: Response) {
+  async createRoom(req: Request, res: Response, next: NextFunction) {
     try {
       const { name, lifetime, maxUsersCount } = req.body;
       const { authorization } = req.headers as RequestWithToken;
@@ -24,28 +17,20 @@ class RoomController extends Controller {
         const { id } = tokenService.decode(authorization);
         user = await userService.findById(id);
       }
-      roomService
-        .createRoom({
-          name: name,
-          maxUsersCount: maxUsersCount,
-          lifetime: lifetime,
-          userId: user ? user.id : null,
-        })
-        .then(room => {
-          res.status(200).json({
-            roomId: room.id,
-          });
-        })
-        .catch(error => {
-          res.status(403).json({
-            message: error.message,
-          });
-        });
+
+      const room = await roomService.createRoom({
+        name: name,
+        maxUsersCount: maxUsersCount,
+        lifetime: lifetime,
+        userId: user ? user.id : null,
+      });
+
+      return res.status(200).json({ roomId: room.id });
     } catch (error) {
-      super.handleException(req, res, error);
+      next(error);
     }
   }
-  async getUserRooms(req: Request, res: Response) {
+  async getUserRooms(req: Request, res: Response, next: NextFunction) {
     try {
       const { authorization } = req.headers as RequestWithToken;
 
@@ -59,10 +44,10 @@ class RoomController extends Controller {
         rooms,
       });
     } catch (error) {
-      super.handleException(req, res, error);
+      next(error);
     }
   }
-  async joinRoom(req: Request, res: Response) {
+  async joinRoom(req: Request, res: Response, next: NextFunction) {
     try {
       const { roomId, username } = req.body as {
         roomId: string;
@@ -71,9 +56,7 @@ class RoomController extends Controller {
 
       const room = await roomService.findRoomById(roomId);
       if (!room) {
-        return errorService.BadRequest(req, res, {
-          message: 'Error, no room with this id was found',
-        });
+        throw HttpError.BadRequest('Error, no room with this id was found');
       }
 
       socketService.join(room, username);
@@ -82,7 +65,7 @@ class RoomController extends Controller {
         roomId: room.id,
       });
     } catch (error) {
-      super.handleException(req, res, error);
+      next(error);
     }
   }
 }

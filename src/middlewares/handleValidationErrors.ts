@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import { validationResult } from 'express-validator';
 
-import { errorService } from '~/services';
+import { HttpError } from '~/services';
 
 export const handleValidationErrors = (
   req: Request,
@@ -11,10 +11,7 @@ export const handleValidationErrors = (
   const validationErrors = validationResult(req);
 
   if (!validationErrors.isEmpty()) {
-    return errorService.BadRequest(req, res, {
-      message: 'Invalid values, validation error',
-      errors: validationErrors.array(),
-    });
+    next(HttpError.BadRequest('Validation error', validationErrors.array()));
   }
 
   next();
